@@ -62,7 +62,7 @@ from multiprocessing import Pool
 def download_audio_file(link, filename):
     # thing: Stream = YouTube(link).streams.filter(only_audio=True, mime_type="audio/mp4").order_by('abr')[0]
     # thing.download('./tmp/', filename=filename)
-    cmd = f"yt-dlp -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 -o ./tmp/{filename} {link}"
+    cmd = f"./yt-dlp -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 -o ./tmp/{filename} {link}"
     os.system(cmd)
 
 
@@ -78,6 +78,9 @@ process_q = Queue()
 download_q = Queue()
 
 for _, row in bl_df.iterrows():
+    if os.path.exists(row['file_path']):
+        continue
+
     q_element = (row['link'], row['start_seconds'], row['end_seconds'], row['file_path'])
 
     download_q.put(q_element)
@@ -92,8 +95,14 @@ def process_file(*args):
     s_seconds = start % 60
 
     command = f"ffmpeg -hide_banner -loglevel error -i ./tmp/{tmpname} -ac 1 -ar 44100 -ss {s_hours:0>2.0f}:{s_minutes:0>2.0f}:{s_seconds:0>2.0f} -t 00:00:10 {fname}"
+
+    counter = 0
     while not os.path.exists(f'./tmp/{tmpname}'):
         sleep(0.5)
+        counter += 1
+        if counter > 20:
+            print("????")
+            return
 
     os.system(command)
     os.remove(f'./tmp/{tmpname}')
@@ -103,12 +112,12 @@ def download(dq, pq):
     while not dq.empty():
         try:
             link, start, end, file_path = dq.get()
-        except Exception as e:
+        except:
             continue
 
         tmp_file = f"{uuid4()}.mp3"
 
-        print('Downloading ' + link, flush=True)
+        print('Downloading ' + link)
 
         try:
             download_audio_file(link, tmp_file)
