@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import torch
+from tqdm import tqdm
 
 def flatten(v):
     """
@@ -149,7 +150,7 @@ def sampling(net, size, diffusion_hyperparams):
 
     x = std_normal(size)
     with torch.no_grad():
-        for t in range(T-1, -1, -1):
+        for t in tqdm(range(T-1, -1, -1)):
             diffusion_steps = (t * torch.ones((size[0], 1))).cuda()  # use the corresponding reverse step
             epsilon_theta = net((x, diffusion_steps,))  # predict \epsilon according to \epsilon_\theta
             x = (x - (1-Alpha[t])/torch.sqrt(1-Alpha_bar[t]) * epsilon_theta) / torch.sqrt(Alpha[t])  # update x_{t-1} to \mu_\theta(x_t)

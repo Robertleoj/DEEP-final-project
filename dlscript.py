@@ -54,7 +54,7 @@ def process_file(*args):
 
     counter = 0
     while not os.path.exists(f"./tmp/{tmpname}"):
-        counter += 1
+        counter = counter + 1
         if counter > 20:
             print("????")
             return

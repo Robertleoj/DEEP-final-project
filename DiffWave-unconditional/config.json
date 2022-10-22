@@ -7,10 +7,10 @@
     "wavenet_config": {
         "in_channels": 1, 
         "res_channels": 256, 
-        "skip_channels": 256, 
+        "skip_channels": 128, 
         "out_channels": 1, 
-        "num_res_layers": 36, 
-        "dilation_cycle": 12, 
+        "num_res_layers": 24, 
+        "dilation_cycle": 8, 
         "diffusion_step_embed_dim_in": 128,
         "diffusion_step_embed_dim_mid": 512,
         "diffusion_step_embed_dim_out": 512
@@ -18,7 +18,7 @@
     "train_config": {
         "output_directory": "logs/checkpoint",
         "ckpt_iter": "max",
-        "iters_per_ckpt": 10000,
+        "iters_per_ckpt": 20,
         "iters_per_logging": 1,
         "n_iters": 1000001,
         "learning_rate": 2e-4,
@@ -26,7 +26,7 @@
     },
     "trainset_config":{
         "data_path": "../data/audios",
-        "segment_length": 16000,
+        "segment_length": 160000,
         "sampling_rate": 16000
     },
     "gen_config":{

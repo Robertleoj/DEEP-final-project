@@ -57,7 +57,6 @@ class SPEECHCOMMANDS(Dataset):
 
         # walker = filter(lambda w: HASH_DIVIDER in w and EXCEPT_FOLDER not in w, walker)
         self._walker = list(walker)
-
     def __getitem__(self, n: int) -> Tuple[Tensor, int, str, str, int]:
         fileid = self._walker[n]
         return load_speechcommands_item(fileid, self._path)
@@ -79,6 +78,7 @@ def load_Speech_commands(path, batch_size=4, num_gpus=1):
         # sampler=train_sampler,
         num_workers=4,
         pin_memory=False,
+        shuffle=True,
         drop_last=True)
     return trainloader
 

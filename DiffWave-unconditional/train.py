@@ -14,6 +14,7 @@ from distributed_util import init_distributed, apply_gradient_allreduce, reduce_
 
 from WaveNet import WaveNet_Speech_Commands as WaveNet
 
+torch.autograd.set_detect_anomaly(True)
 
 def train(
     num_gpus,
@@ -100,12 +101,12 @@ def train(
     if ckpt_iter == "max":
         ckpt_iter = find_max_epoch(output_directory)
     if ckpt_iter >= 0:
-        try: 
+        try:
             # load checkpoint file
             model_path = os.path.join(output_directory, "{}.pkl".format(ckpt_iter))
             checkpoint = torch.load(model_path, map_location="cpu")
 
-            # feed model dict and optimizer state  vcv
+            # feed model dict and optimizer state
             net.load_state_dict(checkpoint["model_state_dict"])
             if "optimizer_state_dict" in checkpoint:
                 optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
@@ -125,17 +126,17 @@ def train(
     while n_iter < n_iters + 1:
         for audio, _ in trainloader:
             print(f"iter {n_iter}")
-            # load audio°    
+            # load audio
             audio = audio.cuda()
 
             # back-propagation
             optimizer.zero_grad()
             X = audio
             loss = training_loss(net, nn.MSELoss(), X, diffusion_hyperparams)
-            if num_gpus > 1:
-                reduced_loss = reduce_tensor(loss.data, num_gpus).item()
-            else:
-                reduced_loss = loss.item()
+            # if num_gpus > 1:
+                # reduced_loss = reduce_tensor(loss.data, num_gpus).item()
+            # else:
+            reduced_loss = loss.item()
             loss.backward()
             optimizer.step()
 
@@ -160,7 +161,7 @@ def train(
                 )
                 print("model at iteration %s is saved" % n_iter)
 
-            n_iter += 1
+            n_iter = n_iter + 1
 
 
 if __name__ == "__main__":

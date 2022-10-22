@@ -82,7 +82,8 @@ class Residual_block(nn.Module):
         # add in diffusion step embedding
         part_t = self.fc_t(diffusion_step_embed)
         part_t = part_t.view([B, self.res_channels, 1])
-        h += part_t
+        # h += part_t
+        h = h + part_t
 
         # dilated conv layer
         h = self.dilated_conv_layer(h)
@@ -96,7 +97,7 @@ class Residual_block(nn.Module):
         res = self.res_conv(out)
         assert x.shape == res.shape
         skip = self.skip_conv(out)
-        
+
         return (x + res) * math.sqrt(0.5), skip  # normalize for training stability
 
 
@@ -152,7 +153,7 @@ class Residual_group(nn.Module):
             h, skip_n = self.residual_blocks[n](
                 (h, diffusion_step_embed)
             )  # use the output from last residual layer
-            skip += skip_n  # accumulate all skip outputs
+            skip = skip + skip_n  # accumulate all skip outputs
 
         return skip * math.sqrt(
             1.0 / self.num_res_layers
