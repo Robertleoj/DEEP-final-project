@@ -21,7 +21,7 @@ class SinusoidalPositionEmbeddings(nn.Module):
 
 
 class ConvBlock(nn.Module):
-    def __init__(self, start_channels, channels, block_size, time_embed_dim=6, dropout=0.1):
+    def __init__(self, start_channels, channels, block_size, time_embed_dim=6, dropout=0.0):
         super().__init__()
 
         self.time_emb = (
