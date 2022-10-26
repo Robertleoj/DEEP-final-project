@@ -128,9 +128,6 @@ class Model(nn.Module):
         
         time_emb = self.pos_embedder(t)
 
-        time_embedding = self.pos_embedder(t)
-
-
         x = self.init_conv(x)
 
         u_outs = []

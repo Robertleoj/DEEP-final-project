@@ -17,11 +17,6 @@ def mu_t(t, x_t, pred, cached):
             / (torch.sqrt(1 - cached[t]) * torch.sqrt(a_t))
         ) * pred
     )
-    # return (
-
-    #     torch.sqrt(a_t).cuda() * (1 - cached[t - 1]) * x_t
-    #     + torch.sqrt(cached[t - 1]).cuda() * (1 - a_t) * pred
-    # ) / (1 - cached[t])
 
 # Cell
 def generate(n, T, net, shape=(1, 28, 28)):
