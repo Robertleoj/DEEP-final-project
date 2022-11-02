@@ -18,6 +18,8 @@ class DiffDset(Dataset):
         
     def __getitem__(self, idx, t=None):
         img: torch.Tensor = self.dset[idx][0]
+
+        img = trans.functional.rotate(img, -90)
         if t is None:
             t = random.randint(1, self.T)
 
@@ -26,19 +28,20 @@ class DiffDset(Dataset):
 
         noise_img = torch.sqrt(self.abar[t]) * img + math.sqrt(1 - self.abar[t]) * eps
 
-
         return noise_img, eps, img, t
 
     def __len__(self):
         return len(self.dset)
 
-def get_dataset(T):
+def get_dataset(T, image_size):
 
     transf = trans.Compose([
-        trans.ToTensor()
+        trans.Resize((image_size, image_size)),
+        trans.ToTensor(),
+        trans.RandomVerticalFlip(p = 1)
     ])
 
-    data = datasets.CIFAR10('./data', train=True, transform=transf, download=True)
+    data = datasets.EMNIST('./data', split='digits', transform=transf, download=True)
     train_set = DiffDset(data, T)
     return train_set
 

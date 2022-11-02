@@ -25,7 +25,10 @@ class ConvBlock(nn.Module):
         super().__init__()
 
         self.time_emb = (
-            nn.Sequential(nn.Linear(time_embed_dim, channels))
+            nn.Sequential(
+                nn.Linear(time_embed_dim, channels),
+                nn.GELU()
+            )
         )
 
         self.first_conv = nn.Sequential(
@@ -61,14 +64,14 @@ class ConvBlock(nn.Module):
     
 
 
-class Model(nn.Module):
+class Unet(nn.Module):
     def __init__(
         self, 
         u_depth=3, 
+        channels=3,
         h_channels=32, 
         block_size=3, 
-        dim=28, 
-        time_embed_dim=6,
+        time_embed_dim=128,
         device='cuda'
     ):
         super().__init__()
@@ -76,7 +79,7 @@ class Model(nn.Module):
         self.device = device
         self.pos_embedder = SinusoidalPositionEmbeddings(time_embed_dim)
 
-        self.init_conv = nn.Conv2d(3, h_channels, 3, padding=1)
+        self.init_conv = nn.Conv2d(channels, h_channels, 3, padding=1)
 
         self.downconvs = nn.ModuleList()
         self.upconvs = []
@@ -86,11 +89,11 @@ class Model(nn.Module):
         for i in range(u_depth):
             ch = h_channels * (2 ** i)
 
-            dc = ConvBlock(ch//2 if i != 0 else ch, ch, block_size)
+            dc = ConvBlock(ch//2 if i != 0 else ch, ch, block_size, time_embed_dim=time_embed_dim)
 
             self.downconvs.append(dc)
 
-            uc = ConvBlock(ch * 2, ch, block_size)
+            uc = ConvBlock(ch * 2, ch, block_size, time_embed_dim=time_embed_dim)
 
             self.upconvs.append(uc)
 
@@ -117,7 +120,7 @@ class Model(nn.Module):
 
         self.upsamples = nn.ModuleList()
 
-        self.outconv = nn.Conv2d(h_channels, 3, 3, padding=1)
+        self.outconv = nn.Conv2d(h_channels, channels, 3, padding=1)
 
 
     def forward(self, x, t=None):
