@@ -31,7 +31,6 @@ def generate(n, T, net, shape=(1, 28, 28)):
 
     images = torch.normal(0, 1, size=batch_shape).cuda()
 
-    t_iter = T - 1
 
     for t_iter in tqdm(range(T - 1, 0, -1)):
         pred = net(images, torch.ones(n).cuda() * t_iter)
@@ -42,8 +41,9 @@ def generate(n, T, net, shape=(1, 28, 28)):
             cached
         )
 
-        if t_iter != 1:
-            images += torch.randn(images.shape).cuda() * math.sqrt(sigma_t(t_iter, cached))
+        if t_iter > 1:
+            # images += torch.randn(images.shape).cuda() * math.sqrt(sigma_t(t_iter, cached))
+            images += torch.normal(0, 1, images.shape).cuda() * math.sqrt(sigma_t(t_iter, cached))
 
     return images
 
