@@ -18,6 +18,11 @@ def mu_t(t, x_t, pred, cached):
         ) * pred
     )
 
+def sigma_t(t, cached):
+    return (
+        (1 - alpha_t(t, cached)) * (1 - cached[t - 1])
+    ) / (1 - cached[t])
+
 # Cell
 def generate(n, T, net, shape=(1, 28, 28)):
     cached = get_cached(T).cuda()
@@ -36,6 +41,9 @@ def generate(n, T, net, shape=(1, 28, 28)):
             pred, 
             cached
         )
+
+        if t_iter != 1:
+            images += torch.randn(images.shape).cuda() * math.sqrt(sigma_t(t_iter, cached))
 
     return images
 

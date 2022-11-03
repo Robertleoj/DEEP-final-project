@@ -33,7 +33,7 @@ class DiffDset(Dataset):
     def __len__(self):
         return len(self.dset)
 
-def get_dataset(T, image_size):
+def get_dataset(T, image_size, split='balanced'):
 
     transf = trans.Compose([
         trans.Resize((image_size, image_size)),
@@ -41,7 +41,7 @@ def get_dataset(T, image_size):
         trans.RandomVerticalFlip(p = 1)
     ])
 
-    data = datasets.EMNIST('./data', split='digits', transform=transf, download=True)
+    data = datasets.EMNIST('./data', split=split, transform=transf, download=True)
     train_set = DiffDset(data, T)
     return train_set
 
